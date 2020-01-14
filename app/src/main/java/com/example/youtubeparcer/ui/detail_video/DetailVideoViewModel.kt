@@ -16,4 +16,7 @@ class DetailVideoViewModel : ViewModel() {
     suspend fun getDataBase(): DetailVideoModel {
         return database.insertDetailVideo()
     }
+    suspend fun getInsert(){
+
+    }
 }

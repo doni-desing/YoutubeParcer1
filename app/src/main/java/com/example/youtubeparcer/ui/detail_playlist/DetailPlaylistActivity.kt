@@ -66,7 +66,6 @@ class DetailPlaylistActivity : AppCompatActivity() {
         else subscribeToViewModel()
     }
 
-
     private fun getDetailPlaylistData() {
         CoroutineScope(Dispatchers.Main).launch {
             val model = viewModel.getDetailPlaylistData()

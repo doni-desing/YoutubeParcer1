@@ -29,4 +29,8 @@ interface YoutubeDao {
     @Query("SELECT * FROM detail_video")
     suspend fun insertDetailVideo(): DetailVideoModel
 
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    suspend fun insertDetailVideoPlaylistData(items: DetailVideoModel)
+
+
 }

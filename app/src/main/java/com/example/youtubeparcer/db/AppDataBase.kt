@@ -9,7 +9,7 @@ import com.example.youtubeparcer.model.PlaylistModel
 PlaylistModel::class,
 DetailPlaylistModel::class,
 DetailVideoModel::class],
-    version = 2, exportSchema = false)
+    version = 3, exportSchema = false)
 abstract class AppDataBase: RoomDatabase() {
     abstract fun ytVideoDao(): YoutubeDao
 }

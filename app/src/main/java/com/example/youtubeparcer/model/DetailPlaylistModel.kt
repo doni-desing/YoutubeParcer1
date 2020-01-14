@@ -6,9 +6,6 @@ import androidx.room.TypeConverters
 import com.example.youtubeparcer.type_converter.PlaylistModelTypeConverter
 import com.google.gson.annotations.SerializedName
 
-
-
-
 @Entity(tableName = "detail_playlist")
 @TypeConverters(PlaylistModelTypeConverter::class)
 data class DetailPlaylistModel(

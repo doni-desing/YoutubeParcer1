@@ -15,8 +15,8 @@ class DetailPlaylistViewModel : ViewModel(){
 
     fun fetchDetailPlaylistData(id: String): LiveData<DetailPlaylistModel>? {
         return MainRepository.fetchYoutubeDetailPlaylistData(id)
-
     }
+
     suspend fun getDetailPlaylistData(): List<DetailPlaylistModel>? {
         return db.ytVideoDao().getDetailPlaylist()
     }
