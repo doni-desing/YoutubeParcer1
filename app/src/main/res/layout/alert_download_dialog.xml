@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="vertical"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:minWidth="300dp"
+    android:padding="8dp">
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="@string/select_video_quality"
+        android:textSize="20sp"
+        android:textColor="#333333"/>
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/alert_recycler_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        tools:listitem="@layout/item_download_dialog"
+        tools:itemCount="7"
+        android:layout_marginBottom="8dp"/>
+    <Button
+        android:id="@+id/btn_alert_download"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+         android:text="@string/download"
+        android:background="@color/colorRed"/>
+</LinearLayout>
