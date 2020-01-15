@@ -18,10 +18,12 @@ class   MainViewModel : ViewModel() {
 
     fun insertPlayListData(model: PlaylistModel) {
     viewModelScope.launch {
-        db.ytVideoDao()?.insertAllPlayList(model)
+        db.ytVideoDao()?.insertAllPlaylist(model)
          }
     }
    suspend fun getDataFromDB():PlaylistModel{
          return db.ytVideoDao().getALLPlayList()
+
     }
+
 }

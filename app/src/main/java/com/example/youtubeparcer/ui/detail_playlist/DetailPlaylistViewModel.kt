@@ -9,10 +9,9 @@ import com.example.youtubeparcer.repository.MainRepository
 import com.example.youtubeparcer.utils.App
 import kotlinx.coroutines.launch
 
-class DetailPlaylistViewModel : ViewModel(){
+class DetailPlaylistViewModel : ViewModel() {
 
     val db = App().getInstance().getDatabase()
-
     fun fetchDetailPlaylistData(id: String): LiveData<DetailPlaylistModel>? {
         return MainRepository.fetchYoutubeDetailPlaylistData(id)
     }

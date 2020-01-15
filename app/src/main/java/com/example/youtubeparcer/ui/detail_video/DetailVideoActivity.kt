@@ -22,7 +22,7 @@ import at.huber.youtubeExtractor.YouTubeExtractor
 import at.huber.youtubeExtractor.YtFile
 import com.example.youtubeparcer.R
 import com.example.youtubeparcer.adapter.DownloadDialogAdapter
-import com.example.youtubeparcer.adapter.PlaylistAdapter
+
 import com.example.youtubeparcer.model.DetailVideoModel
 import com.example.youtubeparcer.model.YtVideo
 import com.example.youtubeparcer.utils.CallBacks
@@ -39,7 +39,6 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
 
 
     private var viewModel: DetailVideoViewModel? = null
-    private var adapter: PlaylistAdapter? = null
 
     private var videoId: String? = null
     private var playlistId: String? = null
@@ -51,6 +50,8 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
     private var selectedVideoExt: String? = null
     private var fileVideo: YtVideo? = null
     private var fileName: String? = null
+    private var id: String? = null
+
 
     private lateinit var player: Player
     private lateinit var playerManager: PlayerManager
@@ -62,7 +63,7 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
 
     private lateinit var dialogAdapter: DownloadDialogAdapter
 
-    private var formatsToShowList: MutableList<YtVideo?>? = null
+    private lateinit var formatsToShowList: MutableList<YtVideo?>
 
 
 
@@ -75,20 +76,22 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
         player = playerManager.playerView.player
         imgBack = findViewById(R.id.imgBack)
         getExtra()
+        getDetailPlaylistData()
         setupViews()
-        getData()
-//        fetchDetailVideo(viewModel?)
-//TODO сделать проверку интернет соединения, данные получать с базы, а если интернет есть, то делать запрос и обновлять базу данных и данные в самой активити
+        fetchDetailVideo()
         onBackPress()
     }
 
-    private fun getData() {
-    CoroutineScope(Dispatchers.Main).launch {
-        val model = viewModel?.getDataBase()
-        if (model != null) {
-            fetchDetailVideo(model)
+    private fun getExtraDetailPlaylistData(model: List<DetailVideoModel>) {
+        var detailPlaylist: DetailVideoModel? = null
+        for (i in 0 until model.size) {
+            for (z in 0 until model[i].items!!.size) {
+                    detailPlaylist = model [i]
+            }
         }
-    }
+
+        if (detailPlaylist != null) setData(detailPlaylist)
+        else fetchDetailVideo()
     }
 
     private fun onBackPress() {
@@ -108,6 +111,17 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
         btn_download.setOnClickListener {
             checkRequestPermission()
             showDownloadDialog()
+        }
+    }
+    private fun getDetailPlaylistData() {
+
+        CoroutineScope(Dispatchers.Main).launch {
+            val model = viewModel?.getDetailVideoPlaylistData()
+            if (model != null && !model.isNullOrEmpty()) {
+                getExtraDetailPlaylistData(model)
+            } else {
+                fetchDetailVideo()
+            }
         }
     }
 
@@ -140,14 +154,6 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
                     )
                     downloadIds += "-"
                 }
-                if (fileVideo?.audioFile != null) {
-                    downloadIds += DownloadMaster().downloadFile(
-                        this,
-                        fileVideo?.videoFile!!.url,
-                        downloadName + "." + fileVideo?.videoFile!!.format.ext,
-                        downloadName + "." + fileVideo?.videoFile!!.format.ext
-                    )
-                }
 
             } catch (e: Exception) {
 
@@ -155,8 +161,14 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
             builder.dismiss()
         }
     }
+    private fun insertInDb(model: DetailVideoModel){
+        viewModel?.insertDetailPlaylistData(model)
+    }
+
     private fun initDialogAdapter() {
-        dialogAdapter = DownloadDialogAdapter { item: YtVideo -> downloadClickItem(item)}
+        dialogAdapter = DownloadDialogAdapter {
+                item: YtVideo -> downloadClickItem(item)
+        }
         dialogRecyclerView.layoutManager = LinearLayoutManager(applicationContext)
         dialogRecyclerView.adapter = dialogAdapter
     }
@@ -174,13 +186,15 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
         }
     }
 
-    private fun fetchDetailVideo(model: DetailVideoModel) {
+    private fun fetchDetailVideo() {
         val data = videoId?.let { viewModel?.getVideoData(it) }
         data?.observe(this, Observer<DetailVideoModel> {
             val model: DetailVideoModel? = data.value
             when {
                 model != null -> {
+
                     setData(model)
+                    insertInDb(model)
                 }
             }
         })
@@ -191,14 +205,13 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
         fileName = model.items?.get(0)?.snippet?.title
         tv_description.text = model.items?.get(0)?.snippet?.description
         val link = model.items?.get(0)?.id.toString()
-        actualLink(link)
+//        actualLink(link)
     }
 
     @SuppressLint("StaticFieldLeak")
     private fun actualLink(link : String) {
         object : YouTubeExtractor(this) {
             public override fun onExtractionComplete(ytFiles: SparseArray<YtFile>?, vMeta: VideoMeta) {
-
                 formatsToShowList = mutableListOf()
                 var i = 0
                 var itag: Int
@@ -213,6 +226,7 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
                         i++
                     }
                 }
+
                 (formatsToShowList)?.sortWith(Comparator {
                         lhs, rhs -> lhs!!.height - rhs!!.height
                 })
@@ -252,7 +266,6 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
     }
 
     private fun playVideo(url: String) {
-
         player_view?.player = player
         DownloadManager.Request(Uri.parse(url))
         PlayerManager.getSharedInstance(this).playStream(url)

@@ -2,6 +2,7 @@ package com.example.youtubeparcer.ui.play_list
 
 import android.content.Intent
 import android.os.Bundle
+import android.util.Log
 import android.view.View
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
@@ -12,10 +13,13 @@ import androidx.recyclerview.widget.LinearLayoutManager
 import androidx.recyclerview.widget.RecyclerView
 import com.example.youtubeparcer.R
 import com.example.youtubeparcer.adapter.PlaylistAdapter
+import com.example.youtubeparcer.model.DetailPlaylistModel
+import com.example.youtubeparcer.model.DetailVideoModel
 import com.example.youtubeparcer.model.ItemsItem
 import com.example.youtubeparcer.model.PlaylistModel
 import com.example.youtubeparcer.ui.detail_playlist.DetailPlaylistActivity
 import com.example.youtubeparcer.utils.NetworkUtils
+import com.example.youtubeparcer.utils.UiHelper
 import com.example.youtubeparcer.utils.isShow
 import kotlinx.android.synthetic.main.activity_main.*
 import kotlinx.coroutines.CoroutineScope
@@ -34,12 +38,13 @@ class MainActivity : AppCompatActivity() {
         initAdapter()
         getDataFromDatabase()
     }
+
     private fun initAdapter() {
         recycler_view.layoutManager = LinearLayoutManager(this)
         adapter = PlaylistAdapter() {item: ItemsItem -> clickItem(item)}
         recycler_view.adapter = adapter
-
     }
+
     private fun clickItem(item: ItemsItem) {
         val intent = Intent(this, DetailPlaylistActivity::class.java)
         intent.putExtra("id", item.id)
@@ -48,9 +53,22 @@ class MainActivity : AppCompatActivity() {
         intent.putExtra("etag", item.etag)
         startActivity(intent)
     }
+
     private fun updateAdapterData(model: PlaylistModel?) {
         val data = model?.items
         adapter?.updateData(data)
+    }
+    private fun fetchNewPlaylistData() {
+        val data = viewModel?.getPlaylistData()
+        data?.observe(this, Observer<PlaylistModel> {
+            val model: PlaylistModel? = data.value
+            when {
+                model != null -> {
+                    updateDatabasePlayList(model)
+                    updateAdapterData(model)
+                }
+            }
+        })
     }
 
     fun restart(view: View) {
@@ -68,6 +86,7 @@ class MainActivity : AppCompatActivity() {
         btnRestart.isShow(isShown)
         imageInet.isShow(isShown)
     }
+
     private fun updateDatabasePlayList(model: PlaylistModel) {
         model.let {  viewModel?.insertPlayListData(it)}
     }
@@ -77,6 +96,8 @@ class MainActivity : AppCompatActivity() {
             val model = viewModel?.getDataFromDB()
             if (model != null && !model.items.isNullOrEmpty()) {
                 updateAdapterData(model)
+            } else {
+                fetchNewPlaylistData()
             }
         }
     }

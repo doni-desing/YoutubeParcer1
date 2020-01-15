@@ -25,7 +25,6 @@ class DownloadDialogAdapter(val function: (YtVideo) -> Unit) :
 
     override fun onBindViewHolder(holder: YouTubeViewHolder, position: Int) {
         val model = list[position]
-
         holder.radioButton?.isChecked = model.isSelected
         if (list[position].height == -1) {
             holder.radioButton?.text =
@@ -37,20 +36,15 @@ class DownloadDialogAdapter(val function: (YtVideo) -> Unit) :
                 "Video " + list[position].height.toString() + "p"
         }
 
-
-
-
         holder.radioButton?.setOnClickListener {
             clearSelectedItem()
             list[position].isSelected = true
             function(list[position])
             notifyDataSetChanged()
         }
-
-
     }
 
-    fun updateData(newList: MutableList<YtVideo?>?) {
+    fun updateData(newList: MutableList<YtVideo?>) {
         list = newList as MutableList<YtVideo>
         notifyDataSetChanged()
     }
