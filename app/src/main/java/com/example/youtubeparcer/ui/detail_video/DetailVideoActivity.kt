@@ -125,6 +125,7 @@ class DetailVideoActivity : AppCompatActivity(), CallBacks.playerCallBack {
         }
     }
 
+
     private fun showDownloadDialog() {
         val builder = AlertDialog.Builder(this, R.style.DownloadDialog)
         val view = layoutInflater.inflate(R.layout.alert_download_dialog, null)
